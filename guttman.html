@@ -3,225 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabla de Análisis - Escala Dinámica</title>
+    <title>Calculadora de Varianza</title>
     <style>
-        /* ESTILOS VISUALES (CSS) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            padding: 30px; 
-            user-select: none; /* Evita que seleccionen y copien texto fácilmente */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            padding: 20px;
         }
-        .container { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            max-width: 950px; 
-            margin: auto; 
+
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
         }
-        .controls { 
-            margin-bottom: 20px; 
-            display: flex; 
-            gap: 10px; 
-            justify-content: center; 
+
+        h1 { font-size: 22px; color: #262626; margin-bottom: 20px; }
+        
+        .setup-section, .input-section, .result-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #efefef;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            background: #fafafa;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: #1877f2; }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .result-box {
             background: #f8f9fa;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 12px;
+            margin-top: 15px;
+            text-align: left;
         }
-        table { border-collapse: collapse; width: 100%; border: 1px solid #e0e0e0; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
-        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
-        
-        /* Colores de las celdas de totales */
-        .col-total-header { background-color: #6c5ce7; color: white; }
-        .row-sum { font-weight: bold; background-color: #fff5eb; }
-        .col-sum { font-weight: bold; background-color: #ebf5ff; }
-        
-        input { 
-            width: 50px; 
-            padding: 6px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            text-align: center; 
-        }
-        input:focus { border-color: #6c5ce7; outline: none; background-color: #f4f1ff; }
 
-        button { 
-            padding: 10px 18px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
-        .btn-blue { background-color: #3498db; color: white; }
-        .btn-purple { background-color: #8e44ad; color: white; }
-        button:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #8e8e8e;
+            text-decoration: none;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="text-align:center; color: #2d3436;">Paso 1: Configura el tamaño de la escala</h2>
-    
-    <div class="controls">
-        <button class="btn-blue" onclick="addRow()">+ Sujeto</button>
-        <button class="btn-blue" onclick="addColumn()">+ Ítem</button>
-        <button class="btn-purple" onclick="fullSort()">Ordenar Tabla (H y V)</button>
+<div class="card">
+    <h1>Análisis de Varianza</h1>
+
+    <div id="step1" class="setup-section">
+        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">¿Cuántos valores vas a ingresar?</p>
+        <input type="number" id="valCount" min="2" placeholder="Ej. 5">
+        <button onclick="generateFields()">Generar Campos</button>
     </div>
 
-    <table id="targetTable">
-        <thead>
-            <tr id="headerRow">
-                <th>Sujeto</th>
-                <th class="item-header">I1</th>
-                <th class="item-header">I2</th>
-                <th class="item-header">I3</th>
-                <th class="col-total-header">Σ</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr>
-                <td class="row-label">S1</td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td class="row-sum">0</td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr id="footerRow">
-                <td style="font-weight: bold;">Total</td>
-                <td class="col-sum">0</td>
-                <td class="col-sum">0</td>
-                <td class="col-sum">0</td>
-                <td style="background: #eee;"></td>
-            </tr>
-        </tfoot>
-    </table>
+    <div id="step2" class="input-section" style="display:none;">
+        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">Ingresa los datos:</p>
+        <div id="fieldsContainer" class="grid-inputs"></div>
+        <button onclick="calculateVariance()" style="background-color: #d6249f;">Calcular Varianza</button>
+    </div>
+
+    <div id="step3" class="result-section" style="display:none;">
+        <div class="result-box">
+            <div class="result-item"><strong>Media (x̄):</strong> <span id="resMean">0</span></div>
+            <div class="result-item"><strong>Varianza Poblacional (σ²):</strong> <span id="resVarP">0</span></div>
+            <div class="result-item"><strong>Varianza Muestral (s²):</strong> <span id="resVarM">0</span></div>
+        </div>
+        <button onclick="reset()">Reiniciar</button>
+    </div>
+
+    <a href="index.html" class="back-link">← Volver al Panel Principal</a>
 </div>
 
 <script>
-    /* 1. LÓGICA DE CÁLCULOS Y ORDENAMIENTO */
-
-    function calculate() {
-        const rows = document.querySelectorAll('#tableBody tr');
-        const footerSums = document.querySelectorAll('.col-sum');
-        let colTotals = new Array(footerSums.length).fill(0);
-
-        rows.forEach(row => {
-            let rowSum = 0;
-            const inputs = row.querySelectorAll('input');
-            inputs.forEach((input, i) => {
-                let val = parseFloat(input.value) || 0;
-                rowSum += val;
-                colTotals[i] += val;
-            });
-            row.querySelector('.row-sum').innerText = rowSum;
-        });
-
-        colTotals.forEach((total, i) => {
-            footerSums[i].innerText = total;
-        });
-    }
-
-    function addRow() {
-        const tbody = document.getElementById('tableBody');
-        const itemCount = document.querySelectorAll('.item-header').length;
-        const subjectNum = tbody.rows.length + 1;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="row-label">S${subjectNum}</td>` + 
-                       Array(itemCount).fill('<td><input type="number" value="0" oninput="calculate()"></td>').join('') + 
-                       `<td class="row-sum">0</td>`;
-        tbody.appendChild(tr);
-        calculate();
-    }
-
-    function addColumn() {
-        const header = document.getElementById('headerRow');
-        const footer = document.getElementById('footerRow');
-        const itemNum = document.querySelectorAll('.item-header').length + 1;
-        
-        const th = document.createElement('th');
-        th.className = 'item-header';
-        th.innerText = `I${itemNum}`;
-        header.insertBefore(th, header.querySelector('.col-total-header'));
-
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const td = document.createElement('td');
-            td.innerHTML = `<input type="number" value="0" oninput="calculate()">`;
-            row.insertBefore(td, row.querySelector('.row-sum'));
-        });
-
-        const tdF = document.createElement('td');
-        tdF.className = 'col-sum';
-        tdF.innerText = '0';
-        footer.insertBefore(tdF, footer.lastElementChild);
-        calculate();
-    }
-
-    function fullSort() {
-        calculate();
-        const tbody = document.getElementById('tableBody');
-        const header = document.getElementById('headerRow');
-        const footer = document.getElementById('footerRow');
-
-        // Ordenar FILAS (Vertical) de Mayor a Menor
-        let rows = Array.from(tbody.rows);
-        rows.sort((a, b) => parseFloat(b.querySelector('.row-sum').innerText) - parseFloat(a.querySelector('.row-sum').innerText));
-        rows.forEach(r => tbody.appendChild(r));
-
-        // Ordenar COLUMNAS (Horizontal) de Mayor a Menor
-        const colCount = document.querySelectorAll('.item-header').length;
-        let colData = [];
-        for (let i = 0; i < colCount; i++) {
-            colData.push({
-                index: i,
-                total: parseFloat(footer.querySelectorAll('.col-sum')[i].innerText),
-                label: header.querySelectorAll('.item-header')[i].innerText
-            });
+    function generateFields() {
+        const count = document.getElementById('valCount').value;
+        if (count < 2) {
+            alert("Por favor, ingresa al menos 2 valores.");
+            return;
         }
-        colData.sort((a, b) => b.total - a.total);
 
-        rows = Array.from(tbody.rows);
-        rows.forEach(row => {
-            const rowLabel = row.querySelector('.row-label');
-            const rowSum = row.querySelector('.row-sum');
-            const inputs = Array.from(row.querySelectorAll('td:not(.row-label):not(.row-sum)'));
-            
-            row.innerHTML = '';
-            row.appendChild(rowLabel);
-            colData.forEach(c => row.appendChild(inputs[c.index]));
-            row.appendChild(rowSum);
-        });
+        const container = document.getElementById('fieldsContainer');
+        container.innerHTML = '';
+        
+        for (let i = 1; i <= count; i++) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.placeholder = `Valor ${i}`;
+            input.className = 'val-input';
+            container.appendChild(input);
+        }
 
-        colData.forEach((c, i) => {
-            header.querySelectorAll('.item-header')[i].innerText = c.label;
-            footer.querySelectorAll('.col-sum')[i].innerText = c.total;
-        });
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
     }
 
-    /* 2. PROTECCIÓN DE CÓDIGO Y SEGURIDAD */
+    function calculateVariance() {
+        const inputs = document.querySelectorAll('.val-input');
+        let values = [];
+        let sum = 0;
 
-    // Bloquear clic derecho
+        inputs.forEach(input => {
+            let val = parseFloat(input.value) || 0;
+            values.push(val);
+            sum += val;
+        });
+
+        const n = values.length;
+        const mean = sum / n;
+        
+        let sumSquares = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+        
+        const varP = sumSquares / n;
+        const varM = sumSquares / (n - 1);
+
+        document.getElementById('resMean').innerText = mean.toFixed(4);
+        document.getElementById('resVarP').innerText = varP.toFixed(4);
+        document.getElementById('resVarM').innerText = varM.toFixed(4);
+
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+    }
+
+    function reset() {
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('valCount').value = '';
+    }
+
+    /* SEGURIDAD */
     document.addEventListener('contextmenu', e => e.preventDefault());
-
-    // Bloquear atajos de teclado de inspección
     document.addEventListener('keydown', function(e) {
-        if (
-            e.key === "F12" || 
-            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
-            (e.ctrlKey && e.key === "u") ||
-            (e.ctrlKey && e.key === "s")
-        ) {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
             e.preventDefault();
-            alert("Acción no permitida por seguridad.");
         }
     });
-
-    // Mensaje en consola por si logran abrirla
-    console.log("%c¡Alto! Esta zona es solo para desarrolladores.", "color: red; font-size: 20px; font-weight: bold;");
 </script>
 
 </body>
