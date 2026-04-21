@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Varianza</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h1 { font-size: 22px; color: #262626; margin-bottom: 20px; }
+        
+        .setup-section, .input-section, .result-section {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #efefef;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            background: #fafafa;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover { background-color: #1877f2; }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .result-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #8e8e8e;
+            text-decoration: none;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Análisis de Varianza</h1>
+
+    <div id="step1" class="setup-section">
+        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">¿Cuántos valores vas a ingresar?</p>
+        <input type="number" id="valCount" min="2" placeholder="Ej. 5">
+        <button onclick="generateFields()">Generar Campos</button>
+    </div>
+
+    <div id="step2" class="input-section" style="display:none;">
+        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">Ingresa los datos:</p>
+        <div id="fieldsContainer" class="grid-inputs"></div>
+        <button onclick="calculateVariance()" style="background-color: #d6249f;">Calcular Varianza</button>
+    </div>
+
+    <div id="step3" class="result-section" style="display:none;">
+        <div class="result-box">
+            <div class="result-item"><strong>Media (x̄):</strong> <span id="resMean">0</span></div>
+            <div class="result-item"><strong>Varianza Poblacional (σ²):</strong> <span id="resVarP">0</span></div>
+            <div class="result-item"><strong>Varianza Muestral (s²):</strong> <span id="resVarM">0</span></div>
+        </div>
+        <button onclick="reset()">Reiniciar</button>
+    </div>
+
+    <a href="index.html" class="back-link">← Volver al Panel Principal</a>
+</div>
+
+<script>
+    function generateFields() {
+        const count = document.getElementById('valCount').value;
+        if (count < 2) {
+            alert("Por favor, ingresa al menos 2 valores.");
+            return;
+        }
+
+        const container = document.getElementById('fieldsContainer');
+        container.innerHTML = '';
+        
+        for (let i = 1; i <= count; i++) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.placeholder = `Valor ${i}`;
+            input.className = 'val-input';
+            container.appendChild(input);
+        }
+
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+    }
+
+    function calculateVariance() {
+        const inputs = document.querySelectorAll('.val-input');
+        let values = [];
+        let sum = 0;
+
+        inputs.forEach(input => {
+            let val = parseFloat(input.value) || 0;
+            values.push(val);
+            sum += val;
+        });
+
+        const n = values.length;
+        const mean = sum / n;
+        
+        let sumSquares = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+        
+        const varP = sumSquares / n;
+        const varM = sumSquares / (n - 1);
+
+        document.getElementById('resMean').innerText = mean.toFixed(4);
+        document.getElementById('resVarP').innerText = varP.toFixed(4);
+        document.getElementById('resVarM').innerText = varM.toFixed(4);
+
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('step3').style.display = 'block';
+    }
+
+    function reset() {
+        document.getElementById('step3').style.display = 'none';
+        document.getElementById('step1').style.display = 'block';
+        document.getElementById('valCount').value = '';
+    }
+
+    /* SEGURIDAD */
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', function(e) {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
+            e.preventDefault();
+        }
+    });
+</script>
+
+</body>
+</html>
