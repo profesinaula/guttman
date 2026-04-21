@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Alfa de Cronbach</title>
+    <title>Escalograma de Guttman Pro</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -22,210 +22,247 @@
         .card {
             background: rgba(255, 255, 255, 0.98);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             text-align: center;
         }
 
-        h1 { font-size: 22px; color: #262626; margin-bottom: 10px; }
-        p.subtitle { color: #8e8e8e; font-size: 14px; margin-bottom: 20px; }
+        h1 { font-size: 24px; color: #262626; margin-bottom: 5px; }
+        p.subtitle { color: #8e8e8e; font-size: 14px; margin-bottom: 25px; }
 
+        /* CONFIGURACIÓN INICIAL */
         .setup-section {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
             margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .input-group { text-align: left; }
-        .input-group label { font-size: 12px; font-weight: bold; color: #262626; display: block; margin-left: 5px; }
-
-        input[type="number"] {
-            padding: 10px;
-            border: 1px solid #dbdbdb;
-            border-radius: 8px;
             background: #fafafa;
-            text-align: center;
-            width: 120px;
-        }
-
-        /* TABLA DINÁMICA */
-        .table-container {
-            max-height: 400px;
-            overflow: auto;
-            margin-top: 20px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 15px;
             border: 1px solid #efefef;
         }
 
-        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
-        th { background: #fafafa; padding: 10px; border: 1px solid #efefef; color: #8e8e8e; }
-        td { padding: 5px; border: 1px solid #efefef; }
-        
+        .input-group { text-align: left; }
+        .input-group label { font-size: 11px; font-weight: 800; color: #8e8e8e; text-transform: uppercase; margin-left: 5px; }
+
+        input[type="number"] {
+            display: block;
+            padding: 10px;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            width: 110px;
+            margin-top: 5px;
+        }
+
+        /* TABLA DE ANÁLISIS */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 1px solid #efefef;
+        }
+
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #f8f9fa; padding: 12px; font-size: 12px; color: #262626; border: 1px solid #eee; }
+        td { padding: 8px; border: 1px solid #eee; }
+
         .cell-input {
-            width: 50px;
+            width: 45px;
             padding: 8px;
             border: 1px solid transparent;
             text-align: center;
-            outline: none;
-        }
-        .cell-input:focus { background: #fff5f8; border-bottom: 2px solid #d6249f; }
-
-        button {
-            background-color: #0095f6;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
             font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 15px;
+            border-radius: 4px;
         }
-        button:hover { background-color: #1877f2; transform: scale(1.02); }
+        .cell-input:focus { background: #fff5f8; border: 1px solid #d6249f; }
 
-        .result-box {
-            background: linear-gradient(45deg, #f094331a, #bc18881a);
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
-            border: 1px solid #bc188833;
-        }
-
-        .alfa-val { font-size: 32px; font-weight: 800; color: #bc1888; display: block; }
+        /* BOTONES */
+        .actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
         
+        button {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-main { background: #0095f6; color: white; }
+        .btn-sort { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743); color: white; }
+        button:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .row-sum { font-weight: bold; background: #fff5eb; color: #e67e22; }
+        .col-sum { font-weight: bold; background: #ebf5ff; color: #2980b9; }
+
         .back-link {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: 25px;
             color: #8e8e8e;
             text-decoration: none;
             font-size: 12px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Alfa de Cronbach</h1>
-    <p class="subtitle">Consistencia interna de la escala</p>
+    <h1>Escalograma de Guttman</h1>
+    <p class="subtitle">Análisis de Reproducibilidad y Jerarquía</p>
 
     <div id="step1" class="setup-section">
         <div class="input-group">
             <label>N° Sujetos</label>
-            <input type="number" id="numSujetos" min="2" placeholder="Filas">
+            <input type="number" id="sujetos" min="1" value="4">
         </div>
         <div class="input-group">
             <label>N° Ítems</label>
-            <input type="number" id="numItems" min="2" placeholder="Columnas">
+            <input type="number" id="items" min="1" value="5">
         </div>
-        <button onclick="generateMatrix()">Generar Tabla</button>
+        <button class="btn-main" style="margin-top:20px" onclick="crearTabla()">Generar Matriz</button>
     </div>
 
     <div id="step2" style="display:none;">
         <div class="table-container">
-            <table id="matrix">
-                <thead><tr id="headerRow"></tr></thead>
+            <table>
+                <thead>
+                    <tr id="headerRow"></tr>
+                </thead>
                 <tbody id="tableBody"></tbody>
+                <tfoot id="footerRow"></tfoot>
             </table>
         </div>
-        <button onclick="calculateCronbach()" style="background: linear-gradient(45deg, #fd5949, #d6249f);">Calcular Consistencia</button>
-    </div>
 
-    <div id="step3" class="result-section" style="display:none;">
-        <div class="result-box">
-            <span style="font-size: 14px; color: #262626;">Coeficiente Alfa (α)</span>
-            <span id="alfaResult" class="alfa-val">0.00</span>
-            <p id="interpretacion" style="font-size: 13px; font-weight: 600;"></p>
+        <div class="actions">
+            <button class="btn-sort" onclick="autoOrdenar()">Ordenar y Analizar</button>
+            <button onclick="location.reload()" style="background:#efefef; color:#262626;">Limpiar</button>
         </div>
-        <button onclick="location.reload()" style="background: #8e8e8e;">Nueva Medición</button>
     </div>
 
-    <a href="index.html" class="back-link">← Volver al Panel Principal</a>
+    <a href="index.html" class="back-link">← Volver al Panel de Control</a>
 </div>
 
 <script>
-    function generateMatrix() {
-        const sujetos = parseInt(document.getElementById('numSujetos').value);
-        const items = parseInt(document.getElementById('numItems').value);
+    function crearTabla() {
+        const nSujetos = parseInt(document.getElementById('sujetos').value);
+        const nItems = parseInt(document.getElementById('items').value);
 
-        if (!sujetos || !items || sujetos < 2 || items < 2) {
-            alert("Por favor, ingresa números válidos (mínimo 2).");
-            return;
+        // Generar Cabecera
+        const header = document.getElementById('headerRow');
+        header.innerHTML = '<th>Sujetos</th>';
+        for (let i = 1; i <= nItems; i++) {
+            header.innerHTML += `<th class="item-label">I${i}</th>`;
         }
+        header.innerHTML += '<th style="background:#6c5ce7; color:white">Σ</th>';
 
-        // Cabecera
-        const headerRow = document.getElementById('headerRow');
-        headerRow.innerHTML = '<th>Sujeto</th>';
-        for (let i = 1; i <= items; i++) {
-            headerRow.innerHTML += `<th>Ítem ${i}</th>`;
-        }
-
-        // Filas
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        for (let s = 1; s <= sujetos; s++) {
-            let row = `<tr><td style="font-weight:bold; color:#8e8e8e;">S${s}</td>`;
-            for (let i = 1; i <= items; i++) {
-                row += `<td><input type="number" class="cell-input item-${i}" value="0"></td>`;
+        // Generar Filas
+        const body = document.getElementById('tableBody');
+        body.innerHTML = '';
+        for (let s = 1; s <= nSujetos; s++) {
+            let row = `<tr><td class="sujeto-label" style="font-weight:600">S${s}</td>`;
+            for (let i = 1; i <= nItems; i++) {
+                row += `<td><input type="number" class="cell-input" value="0" min="0" max="1"></td>`;
             }
-            row += '</tr>';
-            tbody.innerHTML += row;
+            row += `<td class="row-sum">0</td></tr>`;
+            body.innerHTML += row;
         }
+
+        // Pie de tabla (Totales por ítem)
+        const footer = document.getElementById('footerRow');
+        let fRow = `<tr><td style="font-weight:800">Total</td>`;
+        for (let i = 1; i <= nItems; i++) {
+            fRow += `<td class="col-sum">0</td>`;
+        }
+        fRow += `<td style="background:#eee"></td></tr>`;
+        footer.innerHTML = fRow;
 
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
+        
+        // Agregar eventos para recalcular al escribir
+        document.querySelectorAll('.cell-input').forEach(input => {
+            input.addEventListener('input', calcularTotales);
+        });
     }
 
-    function calculateCronbach() {
-        const k = parseInt(document.getElementById('numItems').value);
-        const n = parseInt(document.getElementById('numSujetos').value);
-        
-        let varianzasItems = [];
-        let totalesSujetos = new Array(n).fill(0);
+    function calcularTotales() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        const nItems = document.querySelectorAll('.item-label').length;
+        let colTotals = new Array(nItems).fill(0);
 
-        // Calcular varianza de cada ítem (columna)
-        for (let i = 1; i <= k; i++) {
-            let colValues = [];
-            const inputs = document.querySelectorAll(`.item-${i}`);
-            inputs.forEach((input, index) => {
-                let val = parseFloat(input.value) || 0;
-                colValues.push(val);
-                totalesSujetos[index] += val; // Sumar para el puntaje total del sujeto
+        rows.forEach((row, rowIndex) => {
+            let rSum = 0;
+            const inputs = row.querySelectorAll('.cell-input');
+            inputs.forEach((input, colIndex) => {
+                let val = parseInt(input.value) || 0;
+                rSum += val;
+                colTotals[colIndex] += val;
             });
-            varianzasItems.push(getVarianza(colValues));
+            row.querySelector('.row-sum').innerText = rSum;
+        });
+
+        const colSumCells = document.querySelectorAll('.col-sum');
+        colTotals.forEach((total, i) => {
+            colSumCells[i].innerText = total;
+        });
+    }
+
+    function autoOrdenar() {
+        calcularTotales();
+        const body = document.getElementById('tableBody');
+        const headerRow = document.getElementById('headerRow');
+        const footer = document.getElementById('footerRow');
+
+        // 1. Ordenar Filas (Sujetos) de mayor a menor puntaje
+        let rowsArr = Array.from(body.rows);
+        rowsArr.sort((a, b) => {
+            return parseInt(b.querySelector('.row-sum').innerText) - parseInt(a.querySelector('.row-sum').innerText);
+        });
+        rowsArr.forEach(r => body.appendChild(r));
+
+        // 2. Ordenar Columnas (Items) de mayor a menor puntaje
+        const itemLabels = document.querySelectorAll('.item-label');
+        const colSums = document.querySelectorAll('.col-sum');
+        let colsData = [];
+        
+        for(let i=0; i<itemLabels.length; i++) {
+            colsData.push({
+                index: i,
+                label: itemLabels[i].innerText,
+                total: parseInt(colSums[i].innerText)
+            });
         }
 
-        const sumaVarianzasItems = varianzasItems.reduce((a, b) => a + b, 0);
-        const varianzaTotal = getVarianza(totalesSujetos);
+        colsData.sort((a, b) => b.total - a.total);
 
-        const alfa = (k / (k - 1)) * (1 - (sumaVarianzasItems / varianzaTotal));
+        // Reubicar celdas en cada fila basándose en el nuevo orden de columnas
+        Array.from(body.rows).forEach(row => {
+            const labelCell = row.cells[0];
+            const sumCell = row.cells[row.cells.length - 1];
+            const dataCells = Array.from(row.cells).slice(1, -1);
+            
+            row.innerHTML = '';
+            row.appendChild(labelCell);
+            colsData.forEach(c => row.appendChild(dataCells[c.index]));
+            row.appendChild(sumCell);
+        });
 
-        // Mostrar resultado
-        document.getElementById('alfaResult').innerText = alfa.toFixed(3);
-        
-        const inter = document.getElementById('interpretacion');
-        if(alfa >= 0.9) { inter.innerText = "Excelente consistencia"; inter.style.color = "#28a745"; }
-        else if(alfa >= 0.8) { inter.innerText = "Buena consistencia"; inter.style.color = "#0095f6"; }
-        else if(alfa >= 0.7) { inter.innerText = "Aceptable"; inter.style.color = "#ffc107"; }
-        else { inter.innerText = "Baja confiabilidad"; inter.style.color = "#fd5949"; }
+        // Actualizar cabecera y footer
+        colsData.forEach((c, i) => {
+            document.querySelectorAll('.item-label')[i].innerText = c.label;
+            document.querySelectorAll('.col-sum')[i].innerText = c.total;
+        });
 
-        document.getElementById('step2').style.display = 'none';
-        document.getElementById('step3').style.display = 'block';
-    }
-
-    function getVarianza(arr) {
-        const n = arr.length;
-        const mean = arr.reduce((a, b) => a + b, 0) / n;
-        return arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
+        alert("Tabla reestructurada jerárquicamente.");
     }
 
     /* SEGURIDAD */
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', function(e) {
-        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || (e.ctrlKey && e.key === "u")) {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "u"))) {
             e.preventDefault();
         }
     });
