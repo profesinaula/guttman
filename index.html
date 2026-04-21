@@ -3,225 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabla de Análisis - Escala Dinámica</title>
+    <title>Panel de Análisis Psicométrico</title>
     <style>
-        /* ESTILOS VISUALES (CSS) */
+        /* RESET & BASE */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
-            padding: 30px; 
-            user-select: none; /* Evita que seleccionen y copien texto fácilmente */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            /* Degradado estilo Instagram */
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            color: #262626;
         }
-        .container { 
-            background: white; 
-            padding: 25px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            max-width: 950px; 
-            margin: auto; 
-        }
-        .controls { 
-            margin-bottom: 20px; 
-            display: flex; 
-            gap: 10px; 
-            justify-content: center; 
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        table { border-collapse: collapse; width: 100%; border: 1px solid #e0e0e0; }
-        th, td { padding: 12px; border: 1px solid #eee; text-align: center; }
-        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
-        
-        /* Colores de las celdas de totales */
-        .col-total-header { background-color: #6c5ce7; color: white; }
-        .row-sum { font-weight: bold; background-color: #fff5eb; }
-        .col-sum { font-weight: bold; background-color: #ebf5ff; }
-        
-        input { 
-            width: 50px; 
-            padding: 6px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            text-align: center; 
-        }
-        input:focus { border-color: #6c5ce7; outline: none; background-color: #f4f1ff; }
 
-        button { 
-            padding: 10px 18px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.3s; 
+        /* CONTENEDOR PRINCIPAL (ESTILO FEED) */
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 20px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-align: center;
+            backdrop-filter: blur(10px);
         }
-        .btn-blue { background-color: #3498db; color: white; }
-        .btn-purple { background-color: #8e44ad; color: white; }
-        button:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            margin: 0 auto 20px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(214, 36, 159, 0.4);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #262626;
+        }
+
+        p {
+            color: #8e8e8e;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* BOTONES ESTILO PUBLICACIÓN/HISTORIA */
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid #dbdbdb;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #262626;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: #fafafa;
+            border-color: #a8a8a8;
+            transform: scale(1.02);
+        }
+
+        .nav-button .icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #efefef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .nav-button .arrow {
+            color: #0095f6;
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+        .footer-text {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #8e8e8e;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 style="text-align:center; color: #2d3436;">Paso 1: Configura el tamaño de la escala</h2>
-    
-    <div class="controls">
-        <button class="btn-blue" onclick="addRow()">+ Sujeto</button>
-        <button class="btn-blue" onclick="addColumn()">+ Ítem</button>
-        <button class="btn-purple" onclick="fullSort()">Ordenar Tabla (H y V)</button>
+<div class="welcome-card">
+    <div class="logo-placeholder">Σ</div>
+    <h1>Análisis de Datos</h1>
+    <p>Selecciona el módulo de cálculo para comenzar</p>
+
+    <div class="nav-menu">
+        <a href="guttman.html" class="nav-button">
+            <div style="display: flex; align-items: center;">
+                <div class="icon">📊</div>
+                <span>Escalograma de Guttman</span>
+            </div>
+            <span class="arrow">VER MÁS</span>
+        </a>
+
+        <a href="varianza.html" class="nav-button">
+            <div style="display: flex; align-items: center;">
+                <div class="icon">📉</div>
+                <span>Análisis de Varianza</span>
+            </div>
+            <span class="arrow">VER MÁS</span>
+        </a>
+
+        <a href="alfa.html" class="nav-button">
+            <div style="display: flex; align-items: center;">
+                <div class="icon">🧬</div>
+                <span>Alfa de Cronbach</span>
+            </div>
+            <span class="arrow">VER MÁS</span>
+        </a>
     </div>
 
-    <table id="targetTable">
-        <thead>
-            <tr id="headerRow">
-                <th>Sujeto</th>
-                <th class="item-header">I1</th>
-                <th class="item-header">I2</th>
-                <th class="item-header">I3</th>
-                <th class="col-total-header">Σ</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            <tr>
-                <td class="row-label">S1</td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td><input type="number" value="0" oninput="calculate()"></td>
-                <td class="row-sum">0</td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr id="footerRow">
-                <td style="font-weight: bold;">Total</td>
-                <td class="col-sum">0</td>
-                <td class="col-sum">0</td>
-                <td class="col-sum">0</td>
-                <td style="background: #eee;"></td>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="footer-text">Sistema de Seguridad Activo</div>
 </div>
 
 <script>
-    /* 1. LÓGICA DE CÁLCULOS Y ORDENAMIENTO */
+    /* ---------------------------------------------------------
+       SEGURIDAD Y PROTECCIÓN DE CÓDIGO
+    --------------------------------------------------------- */
 
-    function calculate() {
-        const rows = document.querySelectorAll('#tableBody tr');
-        const footerSums = document.querySelectorAll('.col-sum');
-        let colTotals = new Array(footerSums.length).fill(0);
-
-        rows.forEach(row => {
-            let rowSum = 0;
-            const inputs = row.querySelectorAll('input');
-            inputs.forEach((input, i) => {
-                let val = parseFloat(input.value) || 0;
-                rowSum += val;
-                colTotals[i] += val;
-            });
-            row.querySelector('.row-sum').innerText = rowSum;
-        });
-
-        colTotals.forEach((total, i) => {
-            footerSums[i].innerText = total;
-        });
-    }
-
-    function addRow() {
-        const tbody = document.getElementById('tableBody');
-        const itemCount = document.querySelectorAll('.item-header').length;
-        const subjectNum = tbody.rows.length + 1;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="row-label">S${subjectNum}</td>` + 
-                       Array(itemCount).fill('<td><input type="number" value="0" oninput="calculate()"></td>').join('') + 
-                       `<td class="row-sum">0</td>`;
-        tbody.appendChild(tr);
-        calculate();
-    }
-
-    function addColumn() {
-        const header = document.getElementById('headerRow');
-        const footer = document.getElementById('footerRow');
-        const itemNum = document.querySelectorAll('.item-header').length + 1;
-        
-        const th = document.createElement('th');
-        th.className = 'item-header';
-        th.innerText = `I${itemNum}`;
-        header.insertBefore(th, header.querySelector('.col-total-header'));
-
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const td = document.createElement('td');
-            td.innerHTML = `<input type="number" value="0" oninput="calculate()">`;
-            row.insertBefore(td, row.querySelector('.row-sum'));
-        });
-
-        const tdF = document.createElement('td');
-        tdF.className = 'col-sum';
-        tdF.innerText = '0';
-        footer.insertBefore(tdF, footer.lastElementChild);
-        calculate();
-    }
-
-    function fullSort() {
-        calculate();
-        const tbody = document.getElementById('tableBody');
-        const header = document.getElementById('headerRow');
-        const footer = document.getElementById('footerRow');
-
-        // Ordenar FILAS (Vertical) de Mayor a Menor
-        let rows = Array.from(tbody.rows);
-        rows.sort((a, b) => parseFloat(b.querySelector('.row-sum').innerText) - parseFloat(a.querySelector('.row-sum').innerText));
-        rows.forEach(r => tbody.appendChild(r));
-
-        // Ordenar COLUMNAS (Horizontal) de Mayor a Menor
-        const colCount = document.querySelectorAll('.item-header').length;
-        let colData = [];
-        for (let i = 0; i < colCount; i++) {
-            colData.push({
-                index: i,
-                total: parseFloat(footer.querySelectorAll('.col-sum')[i].innerText),
-                label: header.querySelectorAll('.item-header')[i].innerText
-            });
-        }
-        colData.sort((a, b) => b.total - a.total);
-
-        rows = Array.from(tbody.rows);
-        rows.forEach(row => {
-            const rowLabel = row.querySelector('.row-label');
-            const rowSum = row.querySelector('.row-sum');
-            const inputs = Array.from(row.querySelectorAll('td:not(.row-label):not(.row-sum)'));
-            
-            row.innerHTML = '';
-            row.appendChild(rowLabel);
-            colData.forEach(c => row.appendChild(inputs[c.index]));
-            row.appendChild(rowSum);
-        });
-
-        colData.forEach((c, i) => {
-            header.querySelectorAll('.item-header')[i].innerText = c.label;
-            footer.querySelectorAll('.col-sum')[i].innerText = c.total;
-        });
-    }
-
-    /* 2. PROTECCIÓN DE CÓDIGO Y SEGURIDAD */
-
-    // Bloquear clic derecho
+    // 1. Deshabilitar clic derecho
     document.addEventListener('contextmenu', e => e.preventDefault());
 
-    // Bloquear atajos de teclado de inspección
+    // 2. Bloquear combinaciones de teclas de inspección (F12, Ctrl+Shift+I, etc.)
     document.addEventListener('keydown', function(e) {
         if (
             e.key === "F12" || 
             (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
             (e.ctrlKey && e.key === "u") ||
-            (e.ctrlKey && e.key === "s")
+            (e.ctrlKey && e.key === "s") ||
+            (e.metaKey && e.altKey && e.key === "i") // Para Mac
         ) {
             e.preventDefault();
-            alert("Acción no permitida por seguridad.");
+            return false;
         }
     });
 
-    // Mensaje en consola por si logran abrirla
-    console.log("%c¡Alto! Esta zona es solo para desarrolladores.", "color: red; font-size: 20px; font-weight: bold;");
+    // 3. Anti-Debug: Pausa la ejecución si abren la consola
+    setInterval(function() {
+        (function() {
+            (function a() {
+                try {
+                    (function b(i) {
+                        if (("" + (i / i)).length !== 1 || i % 20 === 0) {
+                            (function() {}).constructor("debugger")();
+                        } else {
+                            debugger;
+                        }
+                        b(++i);
+                    })(0);
+                } catch (e) {}
+            })();
+        })();
+    }, 1000);
+
+    // 4. Mensaje disuasorio en consola
+    console.log("%c¡ALTO!", "color: red; font-size: 40px; font-weight: bold; -webkit-text-stroke: 1px black;");
+    console.log("%cEl acceso a la consola está restringido por políticas de seguridad.", "font-size: 18px;");
 </script>
 
 </body>
