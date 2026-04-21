@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Varianza</title>
+    <title>Calculadora de Alfa de Cronbach</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -22,73 +22,84 @@
         .card {
             background: rgba(255, 255, 255, 0.98);
             width: 100%;
-            max-width: 500px;
+            max-width: 800px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             text-align: center;
         }
 
-        h1 { font-size: 22px; color: #262626; margin-bottom: 20px; }
-        
-        .setup-section, .input-section, .result-section {
+        h1 { font-size: 22px; color: #262626; margin-bottom: 10px; }
+        p.subtitle { color: #8e8e8e; font-size: 14px; margin-bottom: 20px; }
+
+        .setup-section {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
             margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #efefef;
+            flex-wrap: wrap;
         }
 
+        .input-group { text-align: left; }
+        .input-group label { font-size: 12px; font-weight: bold; color: #262626; display: block; margin-left: 5px; }
+
         input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 10px;
             border: 1px solid #dbdbdb;
             border-radius: 8px;
             background: #fafafa;
             text-align: center;
+            width: 120px;
         }
 
+        /* TABLA DINÁMICA */
+        .table-container {
+            max-height: 400px;
+            overflow: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            border: 1px solid #efefef;
+        }
+
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
+        th { background: #fafafa; padding: 10px; border: 1px solid #efefef; color: #8e8e8e; }
+        td { padding: 5px; border: 1px solid #efefef; }
+        
+        .cell-input {
+            width: 50px;
+            padding: 8px;
+            border: 1px solid transparent;
+            text-align: center;
+            outline: none;
+        }
+        .cell-input:focus { background: #fff5f8; border-bottom: 2px solid #d6249f; }
+
         button {
-            width: 100%;
             background-color: #0095f6;
             color: white;
             border: none;
-            padding: 12px;
+            padding: 12px 25px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
-            margin-top: 10px;
+            margin-top: 15px;
         }
-
-        button:hover { background-color: #1877f2; }
-
-        .grid-inputs {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-        }
+        button:hover { background-color: #1877f2; transform: scale(1.02); }
 
         .result-box {
-            background: #f8f9fa;
-            padding: 15px;
+            background: linear-gradient(45deg, #f094331a, #bc18881a);
+            padding: 20px;
             border-radius: 12px;
-            margin-top: 15px;
-            text-align: left;
+            margin-top: 20px;
+            border: 1px solid #bc188833;
         }
 
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
+        .alfa-val { font-size: 32px; font-weight: 800; color: #bc1888; display: block; }
+        
         .back-link {
             display: inline-block;
-            margin-top: 15px;
+            margin-top: 20px;
             color: #8e8e8e;
             text-decoration: none;
             font-size: 12px;
@@ -98,86 +109,117 @@
 <body>
 
 <div class="card">
-    <h1>Análisis de Varianza</h1>
+    <h1>Alfa de Cronbach</h1>
+    <p class="subtitle">Consistencia interna de la escala</p>
 
     <div id="step1" class="setup-section">
-        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">¿Cuántos valores vas a ingresar?</p>
-        <input type="number" id="valCount" min="2" placeholder="Ej. 5">
-        <button onclick="generateFields()">Generar Campos</button>
+        <div class="input-group">
+            <label>N° Sujetos</label>
+            <input type="number" id="numSujetos" min="2" placeholder="Filas">
+        </div>
+        <div class="input-group">
+            <label>N° Ítems</label>
+            <input type="number" id="numItems" min="2" placeholder="Columnas">
+        </div>
+        <button onclick="generateMatrix()">Generar Tabla</button>
     </div>
 
-    <div id="step2" class="input-section" style="display:none;">
-        <p style="font-size: 14px; color: #8e8e8e; margin-bottom: 10px;">Ingresa los datos:</p>
-        <div id="fieldsContainer" class="grid-inputs"></div>
-        <button onclick="calculateVariance()" style="background-color: #d6249f;">Calcular Varianza</button>
+    <div id="step2" style="display:none;">
+        <div class="table-container">
+            <table id="matrix">
+                <thead><tr id="headerRow"></tr></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <button onclick="calculateCronbach()" style="background: linear-gradient(45deg, #fd5949, #d6249f);">Calcular Consistencia</button>
     </div>
 
     <div id="step3" class="result-section" style="display:none;">
         <div class="result-box">
-            <div class="result-item"><strong>Media (x̄):</strong> <span id="resMean">0</span></div>
-            <div class="result-item"><strong>Varianza Poblacional (σ²):</strong> <span id="resVarP">0</span></div>
-            <div class="result-item"><strong>Varianza Muestral (s²):</strong> <span id="resVarM">0</span></div>
+            <span style="font-size: 14px; color: #262626;">Coeficiente Alfa (α)</span>
+            <span id="alfaResult" class="alfa-val">0.00</span>
+            <p id="interpretacion" style="font-size: 13px; font-weight: 600;"></p>
         </div>
-        <button onclick="reset()">Reiniciar</button>
+        <button onclick="location.reload()" style="background: #8e8e8e;">Nueva Medición</button>
     </div>
 
     <a href="index.html" class="back-link">← Volver al Panel Principal</a>
 </div>
 
 <script>
-    function generateFields() {
-        const count = document.getElementById('valCount').value;
-        if (count < 2) {
-            alert("Por favor, ingresa al menos 2 valores.");
+    function generateMatrix() {
+        const sujetos = parseInt(document.getElementById('numSujetos').value);
+        const items = parseInt(document.getElementById('numItems').value);
+
+        if (!sujetos || !items || sujetos < 2 || items < 2) {
+            alert("Por favor, ingresa números válidos (mínimo 2).");
             return;
         }
 
-        const container = document.getElementById('fieldsContainer');
-        container.innerHTML = '';
-        
-        for (let i = 1; i <= count; i++) {
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.placeholder = `Valor ${i}`;
-            input.className = 'val-input';
-            container.appendChild(input);
+        // Cabecera
+        const headerRow = document.getElementById('headerRow');
+        headerRow.innerHTML = '<th>Sujeto</th>';
+        for (let i = 1; i <= items; i++) {
+            headerRow.innerHTML += `<th>Ítem ${i}</th>`;
+        }
+
+        // Filas
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        for (let s = 1; s <= sujetos; s++) {
+            let row = `<tr><td style="font-weight:bold; color:#8e8e8e;">S${s}</td>`;
+            for (let i = 1; i <= items; i++) {
+                row += `<td><input type="number" class="cell-input item-${i}" value="0"></td>`;
+            }
+            row += '</tr>';
+            tbody.innerHTML += row;
         }
 
         document.getElementById('step1').style.display = 'none';
         document.getElementById('step2').style.display = 'block';
     }
 
-    function calculateVariance() {
-        const inputs = document.querySelectorAll('.val-input');
-        let values = [];
-        let sum = 0;
-
-        inputs.forEach(input => {
-            let val = parseFloat(input.value) || 0;
-            values.push(val);
-            sum += val;
-        });
-
-        const n = values.length;
-        const mean = sum / n;
+    function calculateCronbach() {
+        const k = parseInt(document.getElementById('numItems').value);
+        const n = parseInt(document.getElementById('numSujetos').value);
         
-        let sumSquares = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
-        
-        const varP = sumSquares / n;
-        const varM = sumSquares / (n - 1);
+        let varianzasItems = [];
+        let totalesSujetos = new Array(n).fill(0);
 
-        document.getElementById('resMean').innerText = mean.toFixed(4);
-        document.getElementById('resVarP').innerText = varP.toFixed(4);
-        document.getElementById('resVarM').innerText = varM.toFixed(4);
+        // Calcular varianza de cada ítem (columna)
+        for (let i = 1; i <= k; i++) {
+            let colValues = [];
+            const inputs = document.querySelectorAll(`.item-${i}`);
+            inputs.forEach((input, index) => {
+                let val = parseFloat(input.value) || 0;
+                colValues.push(val);
+                totalesSujetos[index] += val; // Sumar para el puntaje total del sujeto
+            });
+            varianzasItems.push(getVarianza(colValues));
+        }
+
+        const sumaVarianzasItems = varianzasItems.reduce((a, b) => a + b, 0);
+        const varianzaTotal = getVarianza(totalesSujetos);
+
+        const alfa = (k / (k - 1)) * (1 - (sumaVarianzasItems / varianzaTotal));
+
+        // Mostrar resultado
+        document.getElementById('alfaResult').innerText = alfa.toFixed(3);
+        
+        const inter = document.getElementById('interpretacion');
+        if(alfa >= 0.9) { inter.innerText = "Excelente consistencia"; inter.style.color = "#28a745"; }
+        else if(alfa >= 0.8) { inter.innerText = "Buena consistencia"; inter.style.color = "#0095f6"; }
+        else if(alfa >= 0.7) { inter.innerText = "Aceptable"; inter.style.color = "#ffc107"; }
+        else { inter.innerText = "Baja confiabilidad"; inter.style.color = "#fd5949"; }
 
         document.getElementById('step2').style.display = 'none';
         document.getElementById('step3').style.display = 'block';
     }
 
-    function reset() {
-        document.getElementById('step3').style.display = 'none';
-        document.getElementById('step1').style.display = 'block';
-        document.getElementById('valCount').value = '';
+    function getVarianza(arr) {
+        const n = arr.length;
+        const mean = arr.reduce((a, b) => a + b, 0) / n;
+        return arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
     }
 
     /* SEGURIDAD */
