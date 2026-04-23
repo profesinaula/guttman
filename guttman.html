@@ -19,6 +19,16 @@
             padding: 20px;
         }
 
+        /* QUITANDO BOTONES DE DESPLAZAMIENTO (SPINNERS) */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
         .card {
             background: rgba(255, 255, 255, 0.98);
             width: 100%;
